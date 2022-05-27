@@ -54,6 +54,7 @@ func StringSum(input string) (output string, err error) {
 
 }
 
+// Clear ...
 func Clear(input string) string {
 	cleared := make([]rune, 0, len(input))
 	for _, v := range input {
@@ -64,6 +65,7 @@ func Clear(input string) string {
 	return string(cleared)
 }
 
+// CheckInput ...
 func CheckInput(input string) error {
 	for _, v := range input {
 
@@ -76,49 +78,65 @@ func CheckInput(input string) error {
 	return nil
 }
 
-func Ops(expr string) (op1, op2 int, opcode byte, err error) {
+// Ops ...
+func Ops(expr string) (op1, op2 int, opcode rune, err error) {
+	// log.Println(expr)
 	// op1,op2 sign
-	sg1, sg2 := 0, 0
+	sg1, sg2 := 1, 1
 	opcode = ' '
-	if expr[0] == byte('-') {
+	// "-4--6"
+	if expr[0] == '-' {
 		sg1 = -1
 		expr = expr[1:]
+		// log.Println("sig:-\t", expr)
+	} else if expr[0] == '+' {
+		sg1 = 1
+		expr = expr[1:]
+		// log.Println("sig1:+\t", expr)
 	}
-	// fetch op1
+
+	// var o1 int
+	// fmt.Scan(&o1)
+	// "4--6"
+	// op1, opcode
 	for i, ch := range expr {
 		if unicode.IsDigit(ch) {
 			op1 = op1*10 + int(ch-'0')
-			continue
 		}
-
-		switch ch {
-		case '+':
-			opcode = '+'
-		default:
-			opcode = '-'
+		if ch == '-' || ch == '+' && opcode == ' ' {
+			opcode = ch
+			expr = expr[i+1:]
+			break
 		}
-		expr = expr[i+1:]
-		break
+		// "-6"
+	}
+	// log.Printf("num1: %v\texpr: %v\n", op1, expr)
+	// fmt.Scan(&o1)
 
+	// "-6"
+	if expr[0] == '-' {
+		sg2 = -1
+		expr = expr[1:]
+		// log.Printf("sign2: %v\texpr:%v", sg2, expr)
+	} else if expr[0] == '+' {
+		sg2 = 1
+		expr = expr[1:]
+		// log.Printf("sign2: %v\texpr:%v", sg2, expr)
 	}
 
-	// fetch op2
+	// log.Println(expr)
+	// fmt.Scan(&o1)
+
 	for _, ch := range expr {
-		if sg2 != 0 && !unicode.IsDigit(ch) {
-			return 0, 0, 0, errorNotTwoOperands
-		}
 		if unicode.IsDigit(ch) {
 			op2 = op2*10 + int(ch-'0')
-			continue
+		} else {
+			return 0, 0, opcode, errorRestrictedCharSet
 		}
-		switch ch {
-		case '-':
-			sg2 = -1
-		default:
-			sg2 = 1
-		}
-
 	}
 
+	// log.Println(expr)
+	// fmt.Scan(&o1)
+	// log.Printf("num1: %v oper: %q num2: %v\n", op1*sg1, opcode, op2*sg2)
 	return op1 * sg1, op2 * sg2, opcode, nil
 }
