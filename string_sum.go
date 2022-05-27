@@ -33,6 +33,9 @@ func StringSum(input string) (output string, err error) {
 	if err := checkInput(input); err != nil {
 		return "", fmt.Errorf("cannot to evaluate expression: %w", err)
 	}
+	if len(input) == 0 {
+		return "", fmt.Errorf("empty input: %w", errorEmptyInput)
+	}
 
 	input = clear(input)
 
