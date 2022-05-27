@@ -36,6 +36,9 @@ func StringSum(input string) (output string, err error) {
 	if len(input) == 0 {
 		return "", fmt.Errorf("empty input: %w", errorEmptyInput)
 	}
+	if len(input) < 3 {
+		return "", fmt.Errorf("not enough ops: %w", errorNotTwoOperands)
+	}
 
 	input = clear(input)
 
