@@ -30,7 +30,7 @@ var (
 // StringSum evaluate simple math expression. This is ugly peace of sheat. Got to be rewrited.
 func StringSum(input string) (output string, err error) {
 
-	if err := checkInput(input); err != nil {
+	if err := CheckInput(input); err != nil {
 		return "", fmt.Errorf("cannot to evaluate expression: %w", err)
 	}
 	if len(input) == 0 {
@@ -40,9 +40,12 @@ func StringSum(input string) (output string, err error) {
 		return "", fmt.Errorf("not enough ops: %w", errorNotTwoOperands)
 	}
 
-	input = clear(input)
+	input = Clear(input)
 
-	op1, op2, sig := ops(input)
+	op1, op2, sig, err := Ops(input)
+	if err != nil {
+		return "", errorNotTwoOperands
+	}
 
 	if sig == '+' {
 		return strconv.Itoa(op1 + op2), nil
@@ -51,7 +54,7 @@ func StringSum(input string) (output string, err error) {
 
 }
 
-func clear(input string) string {
+func Clear(input string) string {
 	cleared := make([]rune, 0, len(input))
 	for _, v := range input {
 		if v != ' ' {
@@ -61,7 +64,7 @@ func clear(input string) string {
 	return string(cleared)
 }
 
-func checkInput(input string) error {
+func CheckInput(input string) error {
 	for _, v := range input {
 
 		if !unicode.IsDigit(v) || v != '+' && v != '-' {
@@ -73,9 +76,9 @@ func checkInput(input string) error {
 	return nil
 }
 
-func ops(expr string) (op1, op2 int, opcode byte) {
+func Ops(expr string) (op1, op2 int, opcode byte, err error) {
 	// op1,op2 sign
-	sg1, sg2 := 1, 1
+	sg1, sg2 := 0, 0
 	opcode = ' '
 	if expr[0] == byte('-') {
 		sg1 = -1
@@ -99,7 +102,11 @@ func ops(expr string) (op1, op2 int, opcode byte) {
 
 	}
 
+	// fetch op2
 	for _, ch := range expr {
+		if sg2 != 0 && !unicode.IsDigit(ch) {
+			return 0, 0, 0, errorNotTwoOperands
+		}
 		if unicode.IsDigit(ch) {
 			op2 = op2*10 + int(ch-'0')
 			continue
@@ -110,7 +117,8 @@ func ops(expr string) (op1, op2 int, opcode byte) {
 		default:
 			sg2 = 1
 		}
+
 	}
 
-	return op1 * sg1, op2 * sg2, opcode
+	return op1 * sg1, op2 * sg2, opcode, nil
 }
