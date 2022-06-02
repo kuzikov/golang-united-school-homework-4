@@ -28,115 +28,58 @@ var (
 // Use the errors defined above as described, again wrapping into fmt.Errorf
 
 // StringSum evaluate simple math expression. This is ugly peace of sheat. Got to be rewrited.
-func StringSum(input string) (output string, err error) {
+func StringSum(input string) (string, error) {
+	sigop1 := 0
+	action := ' '
+	switch {
+	case input[0] == '-':
+		sigop1 = -1
+		input = input[1:]
 
-	if err := CheckInput(input); err != nil {
-		return "", fmt.Errorf("cannot to evaluate expression: %w", err)
+	case input[0] == '+':
+		sigop1 = 1
+		input = input[1:]
+
+	default:
+		sigop1 = 1
 	}
-	if len(input) == 0 {
-		return "", fmt.Errorf("empty input: %w", errorEmptyInput)
-	}
-	if len(input) < 3 {
-		return "", fmt.Errorf("not enough ops: %w", errorNotTwoOperands)
-	}
+	//     i
+	// "125+-25"
+	tmp := ""
 
-	input = Clear(input)
-
-	op1, op2, sig, err := Ops(input)
-	if err != nil {
-		return "", errorNotTwoOperands
-	}
-
-	if sig == '+' {
-		return strconv.Itoa(op1 + op2), nil
-	}
-	return strconv.Itoa(op1 - op2), nil
-
-}
-
-// Clear ...
-func Clear(input string) string {
-	cleared := make([]rune, 0, len(input))
-	for _, v := range input {
-		if v != ' ' {
-			cleared = append(cleared, v)
-		}
-	}
-	return string(cleared)
-}
-
-// CheckInput ...
-func CheckInput(input string) error {
-	for _, v := range input {
-
-		if !unicode.IsDigit(v) || v != '+' && v != '-' {
-			return nil
-		}
-		return errorRestrictedCharSet
-
-	}
-	return nil
-}
-
-// Ops ...
-func Ops(expr string) (op1, op2 int, opcode rune, err error) {
-	// log.Println(expr)
-	// op1,op2 sign
-	sg1, sg2 := 1, 1
-	opcode = ' '
-	// "-4--6"
-	if expr[0] == '-' {
-		sg1 = -1
-		expr = expr[1:]
-		// log.Println("sig:-\t", expr)
-	} else if expr[0] == '+' {
-		sg1 = 1
-		expr = expr[1:]
-		// log.Println("sig1:+\t", expr)
-	}
-
-	// var o1 int
-	// fmt.Scan(&o1)
-	// "4--6"
-	// op1, opcode
-	for i, ch := range expr {
+	ops := []string{}
+	for i, ch := range input {
+		// +
 		if unicode.IsDigit(ch) {
-			op1 = op1*10 + int(ch-'0')
-		}
-		if ch == '-' || ch == '+' && opcode == ' ' {
-			opcode = ch
-			expr = expr[i+1:]
+			tmp = tmp + string(ch)
+		} else {
+			ops = append(ops, tmp)
+			action = ch
+			input = input[i+1:]
+			tmp = ""
+			// "-25"
+			for _, ch := range input {
+				tmp = tmp + string(ch)
+			}
+			ops = append(ops, tmp)
+			tmp = ""
 			break
 		}
-		// "-6"
-	}
-	// log.Printf("num1: %v\texpr: %v\n", op1, expr)
-	// fmt.Scan(&o1)
-
-	// "-6"
-	if expr[0] == '-' {
-		sg2 = -1
-		expr = expr[1:]
-		// log.Printf("sign2: %v\texpr:%v", sg2, expr)
-	} else if expr[0] == '+' {
-		sg2 = 1
-		expr = expr[1:]
-		// log.Printf("sign2: %v\texpr:%v", sg2, expr)
 	}
 
-	// log.Println(expr)
-	// fmt.Scan(&o1)
-
-	for _, ch := range expr {
-		if unicode.IsDigit(ch) {
-			op2 = op2*10 + int(ch-'0')
-		} else {
-			return 0, 0, opcode, errorRestrictedCharSet
-		}
+	num1, err1 := strconv.Atoi(ops[0])
+	if err1 != nil {
+		return "", fmt.Errorf("operand1 not valid: %w", err1)
+	}
+	num2, err2 := strconv.Atoi(ops[1])
+	if err2 != nil {
+		return "", fmt.Errorf("operand1 not valid: %w", err2)
 	}
 
-	// log.Println(expr)
-	// fmt.Scan(&o1)
-	// log.Printf("num1: %v oper: %q num2: %v\n", op1*sg1, opcode, op2*sg2)
-	return op1 * sg1, op2 * sg2, opcode, nil
+	if action == '+' {
+		return strconv.Itoa((num1 * sigop1) + num2), nil
+	} else if action == '-' {
+		return strconv.Itoa((num1 * sigop1) - num2), nil
+	}
+	return "", fmt.Errorf("unknown input: %w", errorNotTwoOperands)
 }

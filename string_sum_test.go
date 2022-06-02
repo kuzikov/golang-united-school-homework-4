@@ -12,10 +12,12 @@ func TestStrigSum(t *testing.T) {
 	}{
 		{expr: "1+1", expected: "2"},
 		{expr: "1-1", expected: "0"},
-		// {expr: "-1+1+2", expected: ""},
+		{expr: "-1+1+2", expected: ""},
 		{expr: "-4-6", expected: "-10"},
 		{expr: "-10--1", expected: "-9"},
 		{expr: "-1000+500", expected: "-500"},
+		{expr: "23a23+2", expected: ""},
+		{expr: "3+223A", expected: ""},
 	}
 
 	for _, test := range tests {
