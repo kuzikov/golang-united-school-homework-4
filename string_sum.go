@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
+	"strings"
 	"unicode"
 )
 
@@ -71,16 +72,28 @@ func StringSum(input string) (string, error) {
 		}
 	}
 
-	// "-25"
-
 	// if !unicode.IsDigit(rune(input[0])) {
 	// 	for _, v := range input {
 	// 		if
 	// 	}
 	// }
 
-	for _, ch := range input {
-		tmp = tmp + string(ch)
+	// "-25-5"
+	for i, ch := range input {
+		if len(input) > 0 && input[0] == '+' || input[0] == '-' {
+			tmp = tmp + string(ch)
+		}
+
+		if unicode.IsDigit(ch) {
+			tmp = tmp + string(ch)
+		}
+
+		if ch == '+' || ch == '-' && i != 0 {
+			ar := strings.Split(input[1:], string(ch))
+			if ar[1] != "" {
+				return "", errorNotTwoOperands
+			}
+		}
 	}
 	ops = append(ops, tmp)
 	tmp = ""
@@ -91,7 +104,7 @@ func StringSum(input string) (string, error) {
 	}
 	num2, err2 := strconv.Atoi(ops[1])
 	if err2 != nil {
-		return "", fmt.Errorf("operand1 not valid: %w", err2)
+		return "", fmt.Errorf("operand2 not valid: %w", err2)
 	}
 
 	if action == '+' {
