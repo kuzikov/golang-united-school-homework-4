@@ -29,6 +29,16 @@ var (
 
 // StringSum evaluate simple math expression. This is ugly peace of sheat. Got to be rewrited.
 func StringSum(input string) (string, error) {
+
+	if len(input) < 3 {
+		return "", errorEmptyInput
+	}
+	for _, ch := range input { //+
+		if !unicode.IsDigit(ch) && !(ch == '+' || ch == '-') {
+			return "", errorRestrictedCharSet
+		}
+	}
+
 	sigop1 := 0
 	action := ' '
 	switch {
@@ -43,10 +53,10 @@ func StringSum(input string) (string, error) {
 	default:
 		sigop1 = 1
 	}
+
 	//     i
 	// "125+-25"
 	tmp := ""
-
 	ops := []string{}
 	for i, ch := range input {
 		// +
@@ -57,15 +67,23 @@ func StringSum(input string) (string, error) {
 			action = ch
 			input = input[i+1:]
 			tmp = ""
-			// "-25"
-			for _, ch := range input {
-				tmp = tmp + string(ch)
-			}
-			ops = append(ops, tmp)
-			tmp = ""
 			break
 		}
 	}
+
+	// "-25"
+
+	// if !unicode.IsDigit(rune(input[0])) {
+	// 	for _, v := range input {
+	// 		if
+	// 	}
+	// }
+
+	for _, ch := range input {
+		tmp = tmp + string(ch)
+	}
+	ops = append(ops, tmp)
+	tmp = ""
 
 	num1, err1 := strconv.Atoi(ops[0])
 	if err1 != nil {
